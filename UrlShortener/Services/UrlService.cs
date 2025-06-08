@@ -1,14 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using UrlShortener.Data;
 using UrlShortener.Models;
-using UrlShortener.Services;
 
 namespace UrlShortener.Services
 {
     public class UrlService : IUrlService
     {
         private readonly UrlShortenerContext _context;
-        private readonly Random _random = new();
         private readonly IConfiguration _configuration;
 
         public UrlService(UrlShortenerContext context, IConfiguration configuration)
@@ -17,11 +15,10 @@ namespace UrlShortener.Services
             _configuration = configuration;
         }
 
-        public async Task<UrlResponse> CreateShortUrlAsync(CreateUrlRequest request)
+        public async Task<ShortUrlResponse> CreateShortUrlAsync(string originalUrl)
         {
-            var shortCode = !string.IsNullOrEmpty(request.CustomShortCode) 
-                ? request.CustomShortCode 
-                : await GenerateUniqueShortCodeAsync();
+            // Generate short code in backend
+            var shortCode = GenerateShortCode();
 
             // Check if short code already exists
             if (await _context.Urls.AnyAsync(u => u.ShortCode == shortCode))
@@ -31,88 +28,44 @@ namespace UrlShortener.Services
 
             var url = new Url
             {
-                OriginalUrl = request.OriginalUrl,
+                OriginalUrl = originalUrl,
                 ShortCode = shortCode,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                ClickCount = 0
             };
 
             _context.Urls.Add(url);
             await _context.SaveChangesAsync();
 
-            var baseUrl = _configuration["BaseUrl"] ?? "https://localhost:5001";
-            var response = new UrlResponse
+            var baseUrl = _configuration["BaseUrl"] ?? "http://localhost:5000";
+            var response = new ShortUrlResponse
             {
                 OriginalUrl = url.OriginalUrl,
                 ShortCode = url.ShortCode,
                 ShortUrl = $"{baseUrl}/{url.ShortCode}",
-                CreatedAt = url.CreatedAt,
-                ClickCount = url.ClickCount
+                CreatedAt = url.CreatedAt
             };
 
             return response;
         }
 
-        public async Task<string?> GetOriginalUrlAsync(string shortCode)
-        {
-            var url = await _context.Urls.FirstOrDefaultAsync(u => u.ShortCode == shortCode);
-            if (url != null)
-            {
-                url.ClickCount++;
-                url.LastAccessedAt = DateTime.UtcNow;
-                await _context.SaveChangesAsync();
-                return url.OriginalUrl;
-            }
-            return null;
-        }
-
-        public async Task<UrlResponse?> GetUrlInfoAsync(string shortCode)
-        {
-            var url = await _context.Urls.FirstOrDefaultAsync(u => u.ShortCode == shortCode);
-            if (url == null) return null;
-
-            var baseUrl = _configuration["BaseUrl"] ?? "https://localhost:5001";
-            var response = new UrlResponse
-            {
-                OriginalUrl = url.OriginalUrl,
-                ShortCode = url.ShortCode,
-                ShortUrl = $"{baseUrl}/{url.ShortCode}",
-                CreatedAt = url.CreatedAt,
-                ClickCount = url.ClickCount
-            };
-
-            return response;
-        }
-
-        public async Task<IEnumerable<UrlResponse>> GetAllUrlsAsync()
-        {
-            var urls = await _context.Urls.OrderByDescending(u => u.CreatedAt).ToListAsync();
-            var baseUrl = _configuration["BaseUrl"] ?? "https://localhost:5001";
-            
-            var responses = urls.Select(url => new UrlResponse
-            {
-                OriginalUrl = url.OriginalUrl,
-                ShortCode = url.ShortCode,
-                ShortUrl = $"{baseUrl}/{url.ShortCode}",
-                CreatedAt = url.CreatedAt,
-                ClickCount = url.ClickCount
-            });
-
-            return responses;
-        }
-
-        private async Task<string> GenerateUniqueShortCodeAsync()
+        private string GenerateShortCode()
         {
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-            string shortCode;
-            
-            do
+            var random = new Random();
+            return new string(Enumerable.Repeat(chars, 7)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
+        public async Task<IEnumerable<ShortUrlResponse>> GetAllUrlsAsync()
+        {
+            return await _context.Urls.Select(url => new ShortUrlResponse
             {
-                shortCode = new string(Enumerable.Repeat(chars, 7)
-                    .Select(s => s[_random.Next(s.Length)]).ToArray());
-            }
-            while (await _context.Urls.AnyAsync(u => u.ShortCode == shortCode));
-            
-            return shortCode;
+                OriginalUrl = url.OriginalUrl,
+                ShortCode = url.ShortCode,
+                ShortUrl = $"{_configuration["BaseUrl"]}/{url.ShortCode}",
+                CreatedAt = url.CreatedAt
+            }).ToListAsync();
         }
     }
 }

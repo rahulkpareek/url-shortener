@@ -7,7 +7,5 @@ namespace UrlShortener.Models
         [Required]
         [Url]
         public string OriginalUrl { get; set; } = string.Empty;
-        
-        public string? CustomShortCode { get; set; }
     }
 }

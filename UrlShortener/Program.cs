@@ -53,16 +53,5 @@ app.UseAuthorization();
 
 // Redirect endpoint
 app.MapGet("/", () => Results.Redirect("/swagger"));
-app.MapGet("/{shortCode}", async (string shortCode, IUrlService urlService) =>
-{
-    var originalUrl = await urlService.GetOriginalUrlAsync(shortCode);
-    if (originalUrl == null)
-    {
-        return Results.NotFound("Short URL not found");
-    }
-    return Results.Redirect(originalUrl);
-})
-.WithName("RedirectToOriginalUrl")
-.WithOpenApi();
 
 app.Run();

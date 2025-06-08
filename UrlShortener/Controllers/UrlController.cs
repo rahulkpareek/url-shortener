@@ -16,35 +16,37 @@ namespace UrlShortener.Controllers
         }
 
         [HttpPost("shorten")]
-        public async Task<ActionResult<UrlResponse>> CreateShortUrl([FromBody] CreateUrlRequest request)
+        public async Task<IActionResult> CreateShortUrl([FromBody] CreateUrlRequest request)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             try
             {
-                var result = await _urlService.CreateShortUrlAsync(request);
-                return Ok(result);
+                // Remove any reference to request.CustomShortCode
+                var shortUrl = await _urlService.CreateShortUrlAsync(request.OriginalUrl);
+                return Ok(shortUrl);
             }
-            catch (InvalidOperationException ex)
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
         }
 
-        [HttpGet("{shortCode}")]
-        public async Task<ActionResult<UrlResponse>> GetUrlInfo(string shortCode)
+        [HttpGet("getall")]
+        public async Task<IActionResult> GetAllUrls()
         {
-            var result = await _urlService.GetUrlInfoAsync(shortCode);
-            if (result == null)
+            try
             {
-                return NotFound("Short URL not found");
+                var urls = await _urlService.GetAllUrlsAsync();
+                return Ok(urls);
             }
-            return Ok(result);
-        }
-
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<UrlResponse>>> GetAllUrls()
-        {
-            var result = await _urlService.GetAllUrlsAsync();
-            return Ok(result);
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }
