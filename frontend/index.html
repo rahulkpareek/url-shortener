@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔗 URL Shortener</h1>
+            <p>Transform your long URLs into short, shareable links</p>
+        </header>
+
+        <main>
+            <form id="urlForm" class="url-form">
+                <div class="input-group">
+                    <input 
+                        type="url" 
+                        id="longUrl" 
+                        placeholder="Enter your long URL here..." 
+                        required
+                        class="url-input"
+                    >
+                    <button type="submit" class="shorten-btn">
+                        <span class="btn-text">Shorten URL</span>
+                        <span class="btn-loading" style="display: none;">Shortening...</span>
+                    </button>
+                </div>
+            </form>
+
+            <div id="result" class="result" style="display: none;">
+                <div class="result-content">
+                    <h3>Your shortened URL:</h3>
+                    <div class="url-result">
+                        <input type="text" id="shortUrl" readonly class="short-url-input">
+                        <button id="copyBtn" class="copy-btn">Copy</button>
+                    </div>
+                    <div class="original-url">
+                        <small>Original: <span id="originalUrl"></span></small>
+                    </div>
+                </div>
+            </div>
+
+            <div id="error" class="error" style="display: none;">
+                <p id="errorMessage"></p>
+            </div>
+        </main>
+
+        <footer>
+            <p>Built with ❤️ using ASP.NET Core API | <span class="developer">@rahulkpareek</span></p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
