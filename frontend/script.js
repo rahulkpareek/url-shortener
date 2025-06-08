@@ -1,7 +1,6 @@
 class UrlShortener {
     constructor() {
-        this.apiBaseUrl = 'https://localhost:5000'; 
-        this.initialize();
+        this.apiBaseUrl = 'http://localhost:5000';
         this.initializeEventListeners();
     }
 
