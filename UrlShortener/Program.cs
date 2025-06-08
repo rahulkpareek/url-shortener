@@ -9,6 +9,26 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
+// Add CORS policy
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:8080", "http://127.0.0.1:8080")
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();
+    });
+    
+    // Alternative: Allow all origins for development (less secure)
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
 // Add SQLite Database
 builder.Services.AddDbContext<UrlShortenerContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection") ?? 
@@ -38,7 +58,10 @@ using (var scope = app.Services.CreateScope())
     context.Database.EnsureCreated();
 }
 
-// IMPORTANT: Configure Swagger middleware BEFORE other middleware
+// IMPORTANT: Configure CORS middleware BEFORE other middleware
+app.UseCors("AllowFrontend"); // Use "AllowAll" for development if needed
+
+// Configure Swagger middleware
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
@@ -48,8 +71,8 @@ app.UseSwaggerUI(c =>
 });
 
 app.UseHttpsRedirection();
-app.MapControllers();
 app.UseAuthorization();
+app.MapControllers();
 
 // Redirect endpoint
 app.MapGet("/", () => Results.Redirect("/swagger"));
