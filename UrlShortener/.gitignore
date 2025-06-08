@@ -1,0 +1,34 @@
+# Build results
+bin/
+obj/
+
+# User-specific files
+*.user
+
+# Environment files
+.env
+appsettings.Development.json
+appsettings.Local.json
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+logs/
+
+# VS Code
+.vscode/
+!.vscode/tasks.json
+!.vscode/launch.json
+
+# Temporary files
+*.tmp
+tmp/
+temp/
+
+# OS files
+.DS_Store
+Thumbs.db
