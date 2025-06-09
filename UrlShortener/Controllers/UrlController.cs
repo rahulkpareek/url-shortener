@@ -35,6 +35,31 @@ namespace UrlShortener.Controllers
             }
         }
 
+        [HttpPost("geturl")]
+        public async Task<IActionResult> GetUrl([FromBody] GetUrlRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var originalUrl = await _urlService.GetOriginalUrlAsync(request.ShortCode);
+                
+                if (originalUrl == null)
+                {
+                    return NotFound("Short code not found");
+                }
+
+                return Ok(new { OriginalUrl = originalUrl });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpGet("getall")]
         public async Task<IActionResult> GetAllUrls()
         {

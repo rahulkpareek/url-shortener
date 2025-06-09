@@ -49,6 +49,12 @@ namespace UrlShortener.Services
             return response;
         }
 
+        public async Task<string?> GetOriginalUrlAsync(string shortCode)
+        {
+            var url = await _context.Urls.FirstOrDefaultAsync(u => u.ShortCode == shortCode);
+            return url?.OriginalUrl;
+        }
+
         private string GenerateShortCode()
         {
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
