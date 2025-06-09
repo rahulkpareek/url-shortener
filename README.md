@@ -6,11 +6,17 @@ A simple and efficient URL shortener service built with ASP.NET Core Web API bac
 
 - **URL Shortening**: Convert long URLs into short, manageable links
 - **Auto-generated Short Codes**: 7-character alphanumeric codes for uniqueness
+- **URL Redirection**: Redirect to original URLs using short codes
 - **Click Tracking**: Monitor usage with click count statistics
 - **URL Management**: View all shortened URLs with creation timestamps
 - **Copy to Clipboard**: Easy sharing with one-click copy functionality
 - **Responsive Design**: Works seamlessly across desktop and mobile devices
 - **RESTful API**: Clean API endpoints for integration with other applications
+
+### Nice to Have Features (Open for Contributions)
+
+- **Custom Short Codes**: Allow users to create custom short codes instead of auto-generated ones
+- **URL Analytics Dashboard**: Detailed analytics with charts showing click patterns, geographic data, and referrer information
 
 ## Tech Stack
 
@@ -112,6 +118,23 @@ Content-Type: application/json
 }
 ```
 
+#### Get Original URL
+```http
+POST /geturl
+Content-Type: application/json
+
+{
+  "shortCode": "aBc123X"
+}
+```
+
+**Response:**
+```json
+{
+  "originalUrl": "https://example.com/very/long/url"
+}
+```
+
 #### Get All URLs
 ```http
 GET /getall
@@ -127,26 +150,6 @@ GET /getall
     "createdAt": "2024-01-15T10:30:00Z"
   }
 ]
-```
-
-## Project Structure
-
-```
-url-shortener/
-├── UrlShortener/                 # Backend API
-│   ├── Controllers/
-│   │   └── UrlController.cs      # API endpoints
-│   ├── Services/
-│   │   └── UrlService.cs         # Business logic
-│   ├── Data/
-│   │   └── UrlShortenerContext.cs # Database context
-│   ├── Models/                   # Data models
-│   └── Program.cs                # Application entry point
-├── frontend/                     # Frontend application
-│   ├── index.html                # Main HTML page
-│   ├── styles.css                # Styling
-│   └── script.js                 # JavaScript functionality
-└── README.md
 ```
 
 ## Configuration
